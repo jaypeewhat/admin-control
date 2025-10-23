@@ -40,7 +40,24 @@ For Vercel: add `VITE_ADMIN_PASSCODE` in Project → Settings → Environment Va
 
 ## Firebase
 
-The app uses the same Firebase project as your mobile app. Connection settings are in `src/firebase.ts`. Keep it in sync with the root `constants/firebase.ts` if those change.
+The app reads Firebase config from environment variables. Do not hardcode the config in `src/firebase.ts`.
+
+1) Create `admin-web/.env.local` and fill in:
+
+```
+VITE_ADMIN_PASSCODE=your-strong-passcode
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+VITE_FIREBASE_MEASUREMENT_ID=...
+```
+
+2) For hosting (e.g., Vercel), add the same keys in Project → Settings → Environment Variables and redeploy.
+
+Note: Firebase Web API keys are not secrets (they must be bundled to run on the client). Security depends on Firestore Rules and restricting usage to your authorized domains. You can also restrict API key usage in Google Cloud → Credentials to allowed referrers.
 
 ## Security rules (critical)
 
