@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 // Basic validation to help during local setup
 const missing = Object.entries(firebaseConfig)
-  .filter(([, v]) => !v)
+  .filter(([k, v]) => k !== 'measurementId' && !v)
   .map(([k]) => k);
 if (missing.length) {
   // Note: API key is not a secret for Firebase web apps, but keep it out of git.
