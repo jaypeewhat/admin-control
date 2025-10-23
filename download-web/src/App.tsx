@@ -1,10 +1,21 @@
 import React, { useMemo, useState } from 'react';
 
+// Environment vars (injected at build time by Vite)
 const env = (import.meta as any).env || {};
-const DRIVER_APK = (env.VITE_DRIVER_APK_URL as string | undefined) || (env.VITE_ANDROID_APK_URL as string | undefined);
-const STUDENT_APK = env.VITE_STUDENT_APK_URL as string | undefined;
+
+// Sensible defaults so the site still works even if env vars aren't configured (e.g., fresh repo/Pages)
+const DEFAULT_DRIVER_APK = 'https://www.mediafire.com/file/md9sim3v9mfvk39/application-723d6cd7-f3f5-415a-ad07-f83a259b4ca0.apk/file';
+const DEFAULT_STUDENT_APK = 'https://www.mediafire.com/file/lu290xq74hmxocx/application-c8e6407b-414c-4a6e-ae0b-82f43b2e05b6.apk/file';
+const DEFAULT_DRIVER_PASS = 'driveronly123';
+
+const DRIVER_APK = (env.VITE_DRIVER_APK_URL as string | undefined)
+  || (env.VITE_ANDROID_APK_URL as string | undefined)
+  || DEFAULT_DRIVER_APK;
+const STUDENT_APK = (env.VITE_STUDENT_APK_URL as string | undefined)
+  || DEFAULT_STUDENT_APK;
 const SUPPORT_EMAIL = env.VITE_SUPPORT_EMAIL as string | undefined;
-const DRIVER_PASS = env.VITE_DRIVER_PASSCODE as string | undefined;
+const DRIVER_PASS = (env.VITE_DRIVER_PASSCODE as string | undefined)
+  || DEFAULT_DRIVER_PASS;
 
 export default function App() {
   const [copied, setCopied] = useState(false);
@@ -60,7 +71,7 @@ export default function App() {
           <h1 className="headline">Download the SLSUTrack {which === 'driver' ? 'Driver' : 'Student'} app</h1>
           <p className="muted">Get the latest Android .apk provided by your administrator.</p>
 
-          {which === 'driver' && DRIVER_PASS && (
+          {which === 'driver' && (
             <div className="lock" aria-live="polite">
               <div className="lock__label">
                 <span className="lock__icon">🔒</span>
