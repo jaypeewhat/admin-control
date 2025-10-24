@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 // Environment vars (injected at build time by Vite)
 const env = (import.meta as any).env || {};
 
 // Sensible defaults so the site still works even if env vars aren't configured (e.g., fresh repo/Pages)
-const DEFAULT_DRIVER_APK = 'https://www.mediafire.com/file/md9sim3v9mfvk39/application-723d6cd7-f3f5-415a-ad07-f83a259b4ca0.apk/file';
-const DEFAULT_STUDENT_APK = 'https://www.mediafire.com/file/lu290xq74hmxocx/application-c8e6407b-414c-4a6e-ae0b-82f43b2e05b6.apk/file';
+const DEFAULT_DRIVER_APK = 'https://www.mediafire.com/file/r26vta7s6h9tfml/application-94db4ca4-e4d8-4379-bff9-7e28caaec3d0.apk/file';
+const DEFAULT_STUDENT_APK = 'https://www.mediafire.com/file/92hmti92ms034hk/application-e5ab4b1b-a9f1-43b2-b4dd-549d6006fece.apk/file';
 const DEFAULT_DRIVER_PASS = 'driveronly123';
 
 const DRIVER_APK = (env.VITE_DRIVER_APK_URL as string | undefined)
