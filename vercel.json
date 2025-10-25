@@ -1,0 +1,7 @@
+{
+  "framework": "vite",
+  "installCommand": "npm install --prefix admin-web",
+  "buildCommand": "npm run build --prefix admin-web",
+  "outputDirectory": "admin-web/dist",
+  "devCommand": "npm run dev --prefix admin-web"
+}

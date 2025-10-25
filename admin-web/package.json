@@ -11,13 +11,14 @@
   "dependencies": {
     "firebase": "^11.10.0",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "slsu-driver-portal": "file:.."
   },
   "devDependencies": {
     "@types/react": "~19.0.10",
     "@types/react-dom": "~19.0.4",
+    "@vitejs/plugin-react-swc": "^3.7.1",
     "typescript": "~5.8.3",
-    "vite": "^5.4.10",
-    "@vitejs/plugin-react-swc": "^3.7.1"
+    "vite": "^5.4.10"
   }
 }
