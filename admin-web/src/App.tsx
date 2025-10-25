@@ -113,6 +113,20 @@ export default function App() {
     }
   }, [isAdmin, loadUsers]);
 
+  const stats = useMemo(() => {
+    const total = people.length;
+    const drivers = people.filter((p) => p.user_type === 'driver').length;
+    const students = people.filter((p) => p.user_type === 'student').length;
+    const blocked = people.filter((p) => p.status === 'blocked' || p.blocked).length;
+    return {
+      total,
+      drivers,
+      students,
+      blocked,
+      active: total - blocked,
+    };
+  }, [people]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return people;
@@ -198,106 +212,166 @@ export default function App() {
 
   if (!user || !isAdmin) {
     return (
-      <div className="container">
-        <div className="card login">
-          <div className="card--p login__body">
-            <div className="brand" style={{ marginBottom: 10 }}>
+      <div className="auth-shell">
+        <div className="auth-panel">
+          <div className="auth-header">
+            <div className="brand">
               <div className="brand__logo" />
-              <h1 className="brand__title">SLSU Admin</h1>
+              <div>
+                <h1 className="brand__title">SLSU Admin</h1>
+                <p className="brand__subtitle">Secure portal for managing drivers and students</p>
+              </div>
             </div>
-            <div style={{ display:'flex', gap:8, marginBottom: 8 }}>
-              <button className={`btn btn--sm ${mode==='login' ? 'btn--info' : ''}`} onClick={() => { setMode('login'); setErr(null); }}>Sign in</button>
-              <button className={`btn btn--sm ${mode==='register' ? 'btn--info' : ''}`} onClick={() => { setMode('register'); setErr(null); }}>Register admin</button>
+            <div className="auth-toggle" role="tablist" aria-label="Auth Mode">
+              <button className={`pill ${mode==='login' ? 'pill--active' : ''}`} onClick={() => { setMode('login'); setErr(null); }}>Sign In</button>
+              <button className={`pill ${mode==='register' ? 'pill--active' : ''}`} onClick={() => { setMode('register'); setErr(null); }}>Register Admin</button>
             </div>
-            {mode === 'login' ? (
-              <>
-                <h2 className="login__title">Sign in</h2>
-                <form onSubmit={doLogin} className="login__grid">
-                  <label>
-                    <span className="label">Email</span>
-                    <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </label>
-                  <label>
-                    <span className="label">Password</span>
-                    <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  </label>
-                  <button type="submit" className="btn btn--primary">{loading ? 'Signing in…' : 'Login'}</button>
-                  {err && <div className="badge badge--warn">{err}</div>}
-                  <div className="footer">Use an account with <b>user_type = admin</b>.</div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 className="login__title">Register new admin</h2>
-                <form onSubmit={doRegister} className="login__grid">
-                  <label>
-                    <span className="label">Full name</span>
-                    <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Jane Doe" />
-                  </label>
-                  <label>
-                    <span className="label">Email</span>
-                    <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </label>
-                  <label>
-                    <span className="label">Password</span>
-                    <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  </label>
-                  <label>
-                    <span className="label">Admin passcode</span>
-                    <input className="input" type="password" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} placeholder="Enter admin passcode" required />
-                  </label>
-                  <button type="submit" className="btn btn--primary">Create admin</button>
-                  {err && <div className="badge badge--warn">{err}</div>}
-                  <div className="footer">This creates a Firebase Auth user and grants admin access if the passcode matches.</div>
-                </form>
-              </>
-            )}
           </div>
+
+          {mode === 'login' ? (
+            <>
+              <h2 className="section-title">Welcome back</h2>
+              <p className="section-subtitle">Use your admin credentials to access the dashboard.</p>
+              <form onSubmit={doLogin} className="form-grid">
+                <label>
+                  <span className="label">Email</span>
+                  <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </label>
+                <label>
+                  <span className="label">Password</span>
+                  <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </label>
+                <button type="submit" className="btn btn--primary btn--lg">{loading ? 'Signing in…' : 'Login'}</button>
+                {err && <div className="alert alert--error">{err}</div>}
+                <div className="footer">Need access? Request an invite from an existing administrator.</div>
+              </form>
+            </>
+          ) : (
+            <>
+              <h2 className="section-title">Create a new admin</h2>
+              <p className="section-subtitle">Protected with an admin passcode to prevent unauthorized access.</p>
+              <form onSubmit={doRegister} className="form-grid">
+                <label>
+                  <span className="label">Full name</span>
+                  <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Jane Doe" />
+                </label>
+                <label>
+                  <span className="label">Email</span>
+                  <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </label>
+                <label>
+                  <span className="label">Password</span>
+                  <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </label>
+                <label>
+                  <span className="label">Admin passcode</span>
+                  <input className="input" type="password" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} placeholder="Enter admin passcode" required />
+                </label>
+                <button type="submit" className="btn btn--primary btn--lg">Create admin</button>
+                {err && <div className="alert alert--error">{err}</div>}
+                <div className="footer">A Firebase Auth user with admin role will be created if the passcode matches.</div>
+              </form>
+            </>
+          )}
         </div>
+
+        <aside className="auth-aside">
+          <div className="auth-aside__content">
+            <h3>Keep SLSUTrack secure</h3>
+            <p>Monitor accounts, block suspicious activity, and stay ahead with realtime control.</p>
+            <ul>
+              <li>Approve or block drivers instantly</li>
+              <li>Filter by role and search across metadata</li>
+              <li>Invite trusted teammates with an admin passcode</li>
+            </ul>
+          </div>
+        </aside>
       </div>
     );
   }
 
   return (
-    <div className="container">
-      <div className="header">
+    <div className="dashboard-shell">
+      <header className="dashboard-header">
         <div className="brand">
           <div className="brand__logo" />
-          <h2 className="brand__title">Admin Dashboard</h2>
+          <div>
+            <h2 className="brand__title">Admin Dashboard</h2>
+            <p className="brand__subtitle">Realtime visibility into every SLSUTrack account</p>
+          </div>
         </div>
         <div className="actions">
-          <button onClick={loadUsers} className="btn btn--info">Reload</button>
+          <button onClick={loadUsers} className="btn btn--info">Refresh data</button>
           <button onClick={doLogout} className="btn">Logout</button>
         </div>
-      </div>
+      </header>
 
-      <div className="card card--p">
+      <section className="stats-grid" aria-label="Account summary">
+        <article className="stat-card">
+          <span className="stat-label">Total accounts</span>
+          <span className="stat-value">{stats.total}</span>
+          <span className="stat-foot">Drivers &amp; students combined</span>
+        </article>
+        <article className="stat-card">
+          <span className="stat-label">Active users</span>
+          <span className="stat-value">{stats.active}</span>
+          <span className="stat-foot">{stats.blocked} currently blocked</span>
+        </article>
+        <article className="stat-card">
+          <span className="stat-label">Drivers</span>
+          <span className="stat-value">{stats.drivers}</span>
+          <span className="stat-foot">Enrolled to share routes</span>
+        </article>
+        <article className="stat-card">
+          <span className="stat-label">Students</span>
+          <span className="stat-value">{stats.students}</span>
+          <span className="stat-foot">Following the live tracker</span>
+        </article>
+      </section>
+
+      <section className="card card--panel" aria-label="User management table">
         <div className="toolbar">
-          {(['driver','student','all'] as const).map((k) => (
-            <button key={k} onClick={() => setFilter(k)} className={k === filter ? 'chip chip--active' : 'chip'}>{k.toUpperCase()}</button>
-          ))}
-          <input className="input" placeholder="Search name, email, uid" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <div className="toolbar__filters">
+            {(['driver','student','all'] as const).map((k) => (
+              <button key={k} onClick={() => setFilter(k)} className={k === filter ? 'chip chip--active' : 'chip'}>{k.toUpperCase()}</button>
+            ))}
+          </div>
+          <div className="toolbar__search">
+            <svg aria-hidden focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" /></svg>
+            <input className="input" placeholder="Search name, email, or UID" value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrap" role="region" aria-live="polite">
           <table className="table">
             <thead>
               <tr>
-                <th className="th">UID</th>
-                <th className="th">Name</th>
-                <th className="th">Email</th>
-                <th className="th">Type</th>
+                <th className="th">User</th>
+                <th className="th">Contact</th>
+                <th className="th">Role</th>
                 <th className="th">Status</th>
+                <th className="th">Updated</th>
                 <th className="th">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((p) => (
                 <tr key={p.uid}>
-                  <td className="td td--mono">{p.uid}</td>
-                  <td className="td">{p.display_name || p.name || '—'}</td>
-                  <td className="td">{p.email || '—'}</td>
-                  <td className="td">{p.user_type}</td>
+                  <td className="td">
+                    <div className="user-cell">
+                      <div className="avatar" aria-hidden>{(p.display_name || p.name || p.email || '?').substring(0, 2).toUpperCase()}</div>
+                      <div>
+                        <div className="user-name">{p.display_name || p.name || '—'}</div>
+                        <div className="user-id">{p.uid}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="td">
+                    <div className="contact-cell">{p.email || '—'}</div>
+                  </td>
+                  <td className="td">
+                    <span className={`role role--${p.user_type}`}>{p.user_type}</span>
+                  </td>
                   <td className="td">
                     {(p.status === 'blocked' || p.blocked) ? (
                       <span className="badge badge--warn">Blocked</span>
@@ -305,10 +379,15 @@ export default function App() {
                       <span className="badge badge--ok">Active</span>
                     )}
                   </td>
+                  <td className="td"><span className="time-chip">{p.updated_at ? new Date(p.updated_at).toLocaleString() : '—'}</span></td>
                   <td className="td">
                     <div className="table-actions">
-                      <button disabled={!!busy[p.uid]} onClick={() => toggleBlock(p)} className="btn btn--sm btn--ghost">
-                        {(p.status === 'blocked' || p.blocked) ? 'Unblock' : 'Block'}
+                      <button
+                        disabled={!!busy[p.uid]}
+                        onClick={() => toggleBlock(p)}
+                        className={(p.status === 'blocked' || p.blocked) ? 'btn btn--sm btn--primary' : 'btn btn--sm btn--danger'}
+                      >
+                        {(p.status === 'blocked' || p.blocked) ? 'Unblock user' : 'Block user'}
                       </button>
                     </div>
                   </td>
@@ -318,8 +397,14 @@ export default function App() {
           </table>
         </div>
 
-        {err && <div style={{ color: 'var(--danger)', marginTop: 12 }}>{err}</div>}
-      </div>
+        {err && <div className="alert alert--error" role="status">{err}</div>}
+        {!err && filtered.length === 0 && (
+          <div className="empty-state">
+            <h3>No matching users</h3>
+            <p>Try adjusting the filters or search query.</p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
